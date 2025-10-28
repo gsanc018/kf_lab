@@ -1,0 +1,12 @@
+Metadata-Version: 2.4
+Name: kf_lab
+Version: 0.1.0
+Summary: A small lab for trajectories and Kalman filtering experiments
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: numpy>=1.26
+Requires-Dist: scipy>=1.11
+Requires-Dist: matplotlib>=3.8
+Requires-Dist: pyyaml>=6.0.1
+Requires-Dist: ruff>=0.6.0
+Requires-Dist: black>=24.0.0

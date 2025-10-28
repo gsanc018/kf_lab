@@ -8,12 +8,17 @@ class KalmanFilter:
         self.f = motion_model
         self.h = meas_model
         self.q = q
+        # history for analysis
+        self.innovations: list[np.ndarray] = []
+        self.S_seq: list[np.ndarray] = []
+        self.P_seq: list[np.ndarray] = []
 
     def predict(self, dt: float) -> None:
         F = self.f.F(self.x, dt)
         Q = self.f.Q(dt, q=self.q)
         self.x = self.f.propagate(self.x, dt)
         self.P = F @ self.P @ F.T + Q
+        self.P_seq.append(self.P.copy())
 
     def update(self, z: np.ndarray) -> None:
         H = self.h.H(self.x)
@@ -24,3 +29,6 @@ class KalmanFilter:
         self.x = self.x + K @ y
         I = np.eye(self.P.shape[0])
         self.P = (I - K @ H) @ self.P
+        # log
+        self.innovations.append(y.copy())
+        self.S_seq.append(S.copy())

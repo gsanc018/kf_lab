@@ -10,6 +10,16 @@
             "env": {
                 "PYTHONPATH": "${workspaceFolder}/src"
             }
+        },
+        {
+            "name": "Run minimal CV KF",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/examples/01_minimal_cv_kf.py",
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/src"
+            }
         }
     ]
 }

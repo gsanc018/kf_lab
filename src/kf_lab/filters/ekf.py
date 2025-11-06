@@ -37,7 +37,7 @@ class EKF:
 
     def update(self, z: np.ndarray) -> None:
         H = self.h.H(self.x)
-        R = self.h.R(**self.r_params)
+        R = self.h.R(self.x, **self.r_params)
         z_pred = self.h.h(self.x)
         y = z - z_pred
         # angle component wrap if measurement includes bearing (2nd element)

@@ -5,8 +5,8 @@ from kf_lab.core.utils import wrap_angle
 class RangeBearing2D:
     """
     Range/Bearing from a fixed sensor platform at (xs, ys) with heading psi_s.
-    Works with both CV/CA state [px,py,...] and CT state [px,py,v,psi,omega] (reads only px,py).
-    z = [range, bearing], where bearing is relative to sensor heading (wrapped to [-pi,pi)).
+    Works with both CV/CA state [px,py,...] and CT state [px,py,v,psi,omega].
+    z = [range, bearing], bearing relative to sensor heading (wrapped to [-pi,pi)).
     """
 
     def __init__(
@@ -15,13 +15,17 @@ class RangeBearing2D:
         ys: float = 0.0,
         psi_s: float = 0.0,
         sigma_r: float = 5.0,
-        sigma_b: float = np.deg2rad(2.0),
+        sigma_b: float = np.deg2rad(0.5),
+        adaptive_R: bool = False,
+        k_bearing: float = 1e-3,  # scales how fast bearing noise grows with range
     ):
         self.xs = xs
         self.ys = ys
         self.psi_s = psi_s
         self.sigma_r = sigma_r
         self.sigma_b = sigma_b
+        self.adaptive_R = adaptive_R
+        self.k_bearing = k_bearing
 
     def h(self, x: np.ndarray) -> np.ndarray:
         px, py = x[0], x[1]
@@ -35,7 +39,7 @@ class RangeBearing2D:
         dx, dy = px - self.xs, py - self.ys
         eps = 1e-9
         r2 = dx * dx + dy * dy
-        r2 = max(r2, eps)  # clamp to avoid divide-by-zero
+        r2 = max(r2, eps)
         r = np.sqrt(r2)
 
         dr_dpx = dx / r
@@ -50,7 +54,18 @@ class RangeBearing2D:
         H[1, 1] = db_dpy
         return H
 
-    def R(self, **params) -> np.ndarray:
+    def R(self, x: np.ndarray | None = None, **params) -> np.ndarray:
+        """
+        Measurement noise covariance.
+        If adaptive_R=True and state x provided, bearing variance grows with range.
+        """
         sr = params.get("sigma_r", self.sigma_r)
         sb = params.get("sigma_b", self.sigma_b)
+
+        if self.adaptive_R and x is not None:
+            px, py = x[0], x[1]
+            dx, dy = px - self.xs, py - self.ys
+            r = np.hypot(dx, dy)
+            sb = sb + self.k_bearing * r  # grows linearly with distance
+
         return np.diag([sr**2, sb**2])

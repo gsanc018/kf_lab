@@ -4,6 +4,8 @@ import numpy as np
 class CV2D:
     """Constant Velocity in 2D with state [px, py, vx, vy]."""
 
+    state_dim = 4  # <--- added for IMM/EKF compatibility
+
     def __init__(self, q: float = 0.1):
         self.q = q
 

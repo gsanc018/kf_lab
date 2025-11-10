@@ -13,6 +13,8 @@ class CT2D:
     Process noise: white acceleration on v and white noise on omega via scalar qv, qw.
     """
 
+    state_dim = 5  # <--- added for IMM/EKF compatibility
+
     def __init__(self, qv: float = 0.1, qw: float = 0.01):
         self.qv = qv
         self.qw = qw
